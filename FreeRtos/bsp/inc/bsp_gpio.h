@@ -3,5 +3,5 @@
 #include "config.h"
 
 
-void uart_gpio_init(void);
+void bsp_gpio_init(void);
 #endif

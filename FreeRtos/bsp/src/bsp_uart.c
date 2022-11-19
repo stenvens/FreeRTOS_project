@@ -4,7 +4,7 @@
 #include "ring_buffer.h"
 
 static UART_HandleTypeDef UART_Handler;
-static USART_RING_BUFFER *rb1 = NULL;
+//static USART_RING_BUFFER *rb1 = NULL;
 
 void bsp_uartinit(uint32_t baud)
 {
@@ -21,7 +21,7 @@ void bsp_uartinit(uint32_t baud)
 	HAL_NVIC_EnableIRQ(UART_IRQ_NUM);										//使能USART1中断通道
 	HAL_NVIC_SetPriority(UART_IRQ_NUM,3,3);							//抢占优先级3，子优先级3
 	__HAL_UART_ENABLE_IT(&UART_Handler, UART_IT_RXNE);
-	rb1 = get_ring_buffer();
+//	rb1 = get_ring_buffer();
 //	HAL_UART_Receive_IT(&UART1_Handler, (u8 *)aRxBuffer, RXBUFFERSIZE);//该函数会开启接收中断：标志位UART_IT_RXNE，并且设置接收缓冲以及接收缓冲接收最大数据量
 #endif	
 }
@@ -59,12 +59,12 @@ void UART_IRQFUN(void)
    if(__HAL_UART_GET_FLAG(&UART_Handler, UART_FLAG_RXNE)!= RESET)
    {
 	   HAL_UART_Receive(&UART_Handler,(uint8_t*)&res,sizeof(res),1000);
-	 		//* save the receive data.
-    if (!__BUF_IS_FULL(rb1->rx_head,rb1->rx_tail))
-	  {
-			rb1->rx[rb1->rx_head] = res;
-			__BUF_INCR(rb1->rx_head);
-    }
+//	 		//* save the receive data.
+//    if (!__BUF_IS_FULL(rb1->rx_head,rb1->rx_tail))
+//	  {
+//			rb1->rx[rb1->rx_head] = res;
+//			__BUF_INCR(rb1->rx_head);
+//    }
 	 
    }
 	__HAL_UART_CLEAR_FLAG(&UART_Handler, UART_FLAG_RXNE);

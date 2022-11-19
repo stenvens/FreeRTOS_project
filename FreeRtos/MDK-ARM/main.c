@@ -1,88 +1,117 @@
 #include "stdio.h"
 #include "config.h"
-#include "bsp_systick.h"
 #include "bsp_gpio.h"
 #include "bsp_uart.h"
 #include "bsp_flash.h"
-#include "app_ymodem.h"
-static uint8_t UartRecBuf[248] ={0};
-static uint32_t code_size = 0;
-
-uint8_t test[67] = {0};
-
-#if CM_BACKTRACE == 1
-
 #include "cm_backtrace.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
-#endif
+
+//任务优先级
+#define START_TASK_PRIO		1
+//任务堆栈大小	
+#define START_STK_SIZE 		128  
+//任务句柄
+TaskHandle_t StartTask_Handler;
+//任务函数
+void start_task(void *pvParameters);
+
+//任务优先级
+#define LED0_TASK_PRIO		2
+//任务堆栈大小	
+#define LED0_STK_SIZE 		50  
+//任务句柄
+TaskHandle_t LED0Task_Handler;
+//任务函数
+void led0_task(void *pvParameters);
+
+//任务优先级
+#define LED1_TASK_PRIO		3
+//任务堆栈大小	
+#define LED1_STK_SIZE 		50  
+//任务句柄
+TaskHandle_t LED1Task_Handler;
+//任务函数
+void led1_task(void *pvParameters);
+
+
+
+ 
+
+extern void xPortSysTickHandler(void);
+
+//systick中断服务函数,使用ucos时用到
+void SysTick_Handler(void)
+{	
+    if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED)//系统已经运行
+    {
+        xPortSysTickHandler();	
+    }
+}
+
 int main(void)
 {
-	
-	int i =0;
-#ifdef STM32F103x
-		HAL_Init(); //初始化HAL库
-	  HAL_StatusTypeDef ret = HAL_OK;
-    RCC_OscInitTypeDef RCC_OscInitStructure; 
-    RCC_ClkInitTypeDef RCC_ClkInitStructure;
-    
-    RCC_OscInitStructure.OscillatorType=RCC_OSCILLATORTYPE_HSE;    	//时钟源为HSE
-    RCC_OscInitStructure.HSEState=RCC_HSE_ON;                      	//打开HSE
-		RCC_OscInitStructure.HSEPredivValue=RCC_HSE_PREDIV_DIV1;		//HSE预分频
-    RCC_OscInitStructure.PLL.PLLState=RCC_PLL_ON;					//打开PLL
-    RCC_OscInitStructure.PLL.PLLSource=RCC_PLLSOURCE_HSE;			//PLL时钟源选择HSE
-    RCC_OscInitStructure.PLL.PLLMUL=RCC_PLL_MUL9; 							//主PLL倍频因子
-    ret=HAL_RCC_OscConfig(&RCC_OscInitStructure);//初始化
-	
-    if(ret!=HAL_OK) while(1);
-    
-    //选中PLL作为系统时钟源并且配置HCLK,PCLK1和PCLK2
-    RCC_ClkInitStructure.ClockType=(RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2);
-    RCC_ClkInitStructure.SYSCLKSource=RCC_SYSCLKSOURCE_PLLCLK;		//设置系统时钟时钟源为PLL
-    RCC_ClkInitStructure.AHBCLKDivider=RCC_SYSCLK_DIV1;				//AHB分频系数为1
-    RCC_ClkInitStructure.APB1CLKDivider=RCC_HCLK_DIV2; 				//APB1分频系数为2
-    RCC_ClkInitStructure.APB2CLKDivider=RCC_HCLK_DIV1; 				//APB2分频系数为1
-    ret=HAL_RCC_ClockConfig(&RCC_ClkInitStructure,FLASH_LATENCY_2);	//同时设置FLASH延时周期为2WS，也就是3个CPU周期。
-		
-    if(ret!=HAL_OK) while(1);
-#endif
-		SysTick_init(SYSTICK_FRE);
-	  uart_gpio_init();
-	  bsp_uartinit(115200);
-#if CM_BACKTRACE == 1
-
-		cm_backtrace_init("YMODEM_UPDATE","V1.0","V1.0");
-		printf("ymodem_test!\r\n");
-#endif
-
-	for( i = 0;i<67;i++)
-	{
-	
-		test[i] = i;
-	}
-	bsp_flash_erase(0x8004000U,1);
-	
-	bsp_flash_write(0x8004000U,test,65);
-  
-
-	/* Ymodem更新 */
-	code_size = Ymodem_Receive(UartRecBuf, APP_ADDRESS);
-	if(code_size != 0)
-	{
-		
-	
-	}
-	else
-	{
-	  
-//		JumpToApp();
-	
-	}
-	/* 跳转到APP */
-//	JumpToApp();
+ 
+	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+	HAL_Init(); //初始化HAL库
+	bsp_gpio_init();
+	bsp_uartinit(115200);					//初始化串口
+	printf("FreeRTOS Test!\n");
 	 
-	while(1)
-	{
-		
-	
-	}
+	//创建开始任务
+    xTaskCreate((TaskFunction_t )start_task,            //任务函数
+                (const char*    )"start_task",          //任务名称
+                (uint16_t       )START_STK_SIZE,        //任务堆栈大小
+                (void*          )NULL,                  //传递给任务函数的参数
+                (UBaseType_t    )START_TASK_PRIO,       //任务优先级
+                (TaskHandle_t*  )&StartTask_Handler);   //任务句柄              
+    vTaskStartScheduler();          //开启任务调度
 }
+
+//开始任务任务函数
+void start_task(void *pvParameters)
+{
+    taskENTER_CRITICAL();           //进入临界区
+    //创建LED0任务
+    xTaskCreate((TaskFunction_t )led0_task,     	
+                (const char*    )"led0_task",   	
+                (uint16_t       )LED0_STK_SIZE, 
+                (void*          )NULL,				
+                (UBaseType_t    )LED0_TASK_PRIO,	
+                (TaskHandle_t*  )&LED0Task_Handler);   
+    //创建LED1任务
+    xTaskCreate((TaskFunction_t )led1_task,     
+                (const char*    )"led1_task",   
+                (uint16_t       )LED1_STK_SIZE, 
+                (void*          )NULL,
+                (UBaseType_t    )LED1_TASK_PRIO,
+                (TaskHandle_t*  )&LED1Task_Handler);         
+    vTaskDelete(StartTask_Handler); //删除开始任务
+    taskEXIT_CRITICAL();            //退出临界区
+}
+
+//LED0任务函数 
+void led0_task(void *pvParameters)
+{
+    while(1)
+    {
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,GPIO_PIN_SET);
+        vTaskDelay(500);
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,GPIO_PIN_RESET);
+        vTaskDelay(500);
+    }
+}   
+
+//LED1任务函数
+void led1_task(void *pvParameters)
+{
+    while(1)
+    {
+        HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_SET);
+        vTaskDelay(500);
+        HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_RESET);
+        vTaskDelay(500);
+    }
+}
+

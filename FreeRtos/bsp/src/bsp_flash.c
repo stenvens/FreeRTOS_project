@@ -53,7 +53,6 @@ uint8_t bsp_flash_write(uint32_t _ulFlashAddr, uint8_t *_ucpSrc, uint32_t _ulSiz
 {
 #ifdef STM32F103x
 	uint32_t i;
-	uint8_t ucRet;
   uint32_t len_cnt = 0;
 	if (_ulFlashAddr + _ulSize >((FLASH_END_ADDR+1)-FLASH_PAGESIZE))
 	{
