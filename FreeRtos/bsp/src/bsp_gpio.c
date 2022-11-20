@@ -27,14 +27,14 @@ void bsp_gpio_init(void)
 		HAL_GPIO_Init(UART_TX_PORT,&GPIO_Initure);
 	
 		
-		GPIO_Initure.Pin		=GPIO_PIN_8;			
+		GPIO_Initure.Pin		=LED0_PIN;			
 		GPIO_Initure.Mode		=GPIO_MODE_OUTPUT_PP;		
 		GPIO_Initure.Pull		=GPIO_PULLUP;		
 		GPIO_Initure.Speed	=GPIO_SPEED_FREQ_HIGH;
-		HAL_GPIO_Init(GPIOA,&GPIO_Initure);	
+		HAL_GPIO_Init(LED0_PORT,&GPIO_Initure);	
 
-		GPIO_Initure.Pin	=GPIO_PIN_2;
-		HAL_GPIO_Init(GPIOD,&GPIO_Initure);
+		GPIO_Initure.Pin	=LED1_PIN;
+		HAL_GPIO_Init(LED1_PORT,&GPIO_Initure);
 	
 		
 #endif

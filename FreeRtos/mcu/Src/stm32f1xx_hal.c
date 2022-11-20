@@ -157,9 +157,6 @@ HAL_StatusTypeDef HAL_Init(void)
 #endif
 #endif /* PREFETCH_ENABLE */
 
-  /* Set Interrupt Group Priority */
-  HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_2); //设置优先级分组2
-
   /* Use systick as time base source and configure 1ms tick (default clock after Reset is HSI) */
   HAL_InitTick(TICK_INT_PRIORITY);
 
@@ -167,8 +164,6 @@ HAL_StatusTypeDef HAL_Init(void)
   HAL_MspInit();
 	
 
-
-	
 	RCC_OscInitStructure.OscillatorType=RCC_OSCILLATORTYPE_HSE;    	//时钟源为HSE
 	RCC_OscInitStructure.HSEState=RCC_HSE_ON;                      	//打开HSE
 	RCC_OscInitStructure.HSEPredivValue=RCC_HSE_PREDIV_DIV1;		//HSE预分频
@@ -229,6 +224,38 @@ __weak void HAL_MspInit(void)
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_MspInit could be implemented in the user file
    */
+	  /* USER CODE BEGIN MspInit 0 */
+
+  /* USER CODE END MspInit 0 */
+
+  __HAL_RCC_AFIO_CLK_ENABLE();
+  __HAL_RCC_PWR_CLK_ENABLE();
+
+  HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+
+//  /* System interrupt init*/
+//  /* MemoryManagement_IRQn interrupt configuration */
+//  HAL_NVIC_SetPriority(MemoryManagement_IRQn, 0, 0);
+//  /* BusFault_IRQn interrupt configuration */
+//  HAL_NVIC_SetPriority(BusFault_IRQn, 0, 0);
+//  /* UsageFault_IRQn interrupt configuration */
+//  HAL_NVIC_SetPriority(UsageFault_IRQn, 0, 0);
+//  /* SVCall_IRQn interrupt configuration */
+//  HAL_NVIC_SetPriority(SVCall_IRQn, 0, 0);
+//  /* DebugMonitor_IRQn interrupt configuration */
+//  HAL_NVIC_SetPriority(DebugMonitor_IRQn, 0, 0);
+//  /* PendSV_IRQn interrupt configuration */
+//  HAL_NVIC_SetPriority(PendSV_IRQn, 0, 0);
+//  /* SysTick_IRQn interrupt configuration */
+//  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+
+    /**NOJTAG: JTAG-DP Disabled and SW-DP Enabled 
+    */
+  __HAL_AFIO_REMAP_SWJ_NOJTAG();
+
+  /* USER CODE BEGIN MspInit 1 */
+
+  /* USER CODE END MspInit 1 */
 }
 
 /**

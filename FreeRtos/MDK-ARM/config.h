@@ -1,11 +1,21 @@
 #ifndef __CONFIG_H_
 #define __CONFIG_H_
 
+#include <stdio.h>
+#include <stdint.h>
+#include "bsp_gpio.h"
+#include "bsp_uart.h"
+#include "bsp_flash.h"
+#include "bsp_timer.h"
+#include "cm_backtrace.h"
+
 #define CM_BACKTRACE   1
 
 #ifdef STM32F103x
 
 #include "stm32f1xx.h"
+
+
 #define UART_TX_PORT 	GPIOA
 #define UART_TX_PIN  	GPIO_PIN_9
 
@@ -16,6 +26,14 @@
 #define UART_IRQ_NUM  USART1_IRQn
 #define UART_IRQFUN 	USART1_IRQHandler
 #define UART_CLK      __HAL_RCC_USART1_CLK_ENABLE
+
+
+#define LED0_PORT			GPIOA
+#define LED0_PIN 			GPIO_PIN_8
+
+#define LED1_PORT			GPIOD	
+#define LED1_PIN			GPIO_PIN_2
+
 #endif
 	
 

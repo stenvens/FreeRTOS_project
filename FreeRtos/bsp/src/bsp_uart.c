@@ -19,7 +19,7 @@ void bsp_uartinit(uint32_t baud)
 	UART_Handler.Init.Mode				=UART_MODE_TX_RX;		  //收发模式
 	HAL_UART_Init(&UART_Handler);					   					  //HAL_UART_Init()会使能UART
 	HAL_NVIC_EnableIRQ(UART_IRQ_NUM);										//使能USART1中断通道
-	HAL_NVIC_SetPriority(UART_IRQ_NUM,3,3);							//抢占优先级3，子优先级3
+	HAL_NVIC_SetPriority(UART_IRQ_NUM,3,0);							//抢占优先级3，子优先级3
 	__HAL_UART_ENABLE_IT(&UART_Handler, UART_IT_RXNE);
 //	rb1 = get_ring_buffer();
 //	HAL_UART_Receive_IT(&UART1_Handler, (u8 *)aRxBuffer, RXBUFFERSIZE);//该函数会开启接收中断：标志位UART_IT_RXNE，并且设置接收缓冲以及接收缓冲接收最大数据量
@@ -30,7 +30,7 @@ void bsp_uartinit(uint32_t baud)
 uint32_t uart_Send(uint8_t *pbuf,uint32_t len)
 {
 #ifdef STM32F103x	
-	HAL_UART_Transmit(&UART_Handler,(uint8_t*)&pbuf,len,1000);
+	HAL_UART_Transmit(&UART_Handler,pbuf,len,1000);
 	while(__HAL_UART_GET_FLAG(&UART_Handler, UART_FLAG_TXE)!=SET);	// 等待发送结束.
 #endif	
 	return 0;
@@ -58,7 +58,8 @@ void UART_IRQFUN(void)
    uint8_t res;
    if(__HAL_UART_GET_FLAG(&UART_Handler, UART_FLAG_RXNE)!= RESET)
    {
-	   HAL_UART_Receive(&UART_Handler,(uint8_t*)&res,sizeof(res),1000);
+	   HAL_UART_Receive(&UART_Handler,(uint8_t*)&res,1,1000);
+		 uart_Send((uint8_t*)&res,1);
 //	 		//* save the receive data.
 //    if (!__BUF_IS_FULL(rb1->rx_head,rb1->rx_tail))
 //	  {
