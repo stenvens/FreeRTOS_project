@@ -14,7 +14,7 @@ TaskHandle_t App_StartTask_Handler;
 void AppTaskCreate(void *pvParameters);
 
 
-
+uint32_t ccc = 0;
 int main(void)
 {
   BaseType_t xReturn = pdPASS;//定义一个创建信息返回值，默认为pdPASS
@@ -23,7 +23,7 @@ int main(void)
 	bsp_uartinit(115200);				//初始化串口
 	bsp_timer_init();
 	printf("FreeRTOS Test!\n");
-	 
+	 ccc  = HAL_RCC_GetSysClockFreq();
 	/*创建开始任务*/
    xReturn =  xTaskCreate((TaskFunction_t )AppTaskCreate,   //任务函数
                 (const char*    )"AppTaskCreate",          //任务名称

@@ -3,7 +3,7 @@
 #include "task.h"
 
 static TIM_HandleTypeDef htim4;
-static uint32_t tim4cnt = 0;
+static volatile uint32_t tim4cnt = 0;
 /**
   * @brief  定时器4初始化   
   * @note    none  
@@ -48,7 +48,7 @@ static void bsp_timer4_init(uint32_t pre,uint32_t arr)
   */
 void bsp_timer_init(void)
 {
-	bsp_timer4_init(1,7200);
+	bsp_timer4_init(10,7200);
 }
 
 
@@ -83,9 +83,15 @@ void TIM4_IRQHandler(void)
   /* USER CODE BEGIN TIM4_IRQn 0 */
    if(__HAL_TIM_GET_IT_SOURCE(&htim4,TIM_IT_UPDATE) != RESET )
 	 {
-	    __HAL_TIM_CLEAR_IT(&htim4,TIM_IT_UPDATE);
+	    
 			tim4cnt++;
-		  if(tim4cnt % 1000 ==  0)
-				printf("时间:%d秒\n",(tim4cnt/1000));			
+		  if(tim4cnt == 10000)
+			{		
+			  printf("时间:%d秒\n",(tim4cnt));	
+				tim4cnt = 0;
+			
+			}
+			__HAL_TIM_CLEAR_IT(&htim4,TIM_IT_UPDATE);
+						
    }
 }
