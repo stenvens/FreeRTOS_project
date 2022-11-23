@@ -6,6 +6,14 @@
 static UART_HandleTypeDef UART_Handler;
 //static USART_RING_BUFFER *rb1 = NULL;
 
+
+/**
+  * @brief   			串口初始化   
+  * @note    			none  
+  * @param[in]   	baud:要设置的波特率
+	* @param[out]   none
+  * @retval 
+  */
 void bsp_uartinit(uint32_t baud)
 {
 #ifdef STM32F103x
@@ -26,7 +34,13 @@ void bsp_uartinit(uint32_t baud)
 #endif	
 }
 
-
+/**
+  * @brief   			数据发送   
+  * @note    			none  
+	* @param[in]   	pbuf:要发送的数据 len:数据长度
+	* @param[out]   none
+  * @retval 
+  */
 uint32_t uart_Send(uint8_t *pbuf,uint32_t len)
 {
 #ifdef STM32F103x	
@@ -37,7 +51,14 @@ uint32_t uart_Send(uint8_t *pbuf,uint32_t len)
 }
 
 
-//重定义fputc函数 
+
+/**
+  * @brief   			重定义fputc函数   
+  * @note    			none  
+	* @param[in]   	ch:要发送的数据 
+	* @param[out]   none
+  * @retval 
+  */
 int fputc(int ch, FILE *f)
 {   
 #ifdef STM32F103x	
@@ -47,10 +68,13 @@ int fputc(int ch, FILE *f)
 	return ch;
 }
 
-
 /**
-* @brief This function handles USART1 global interrupt.
-*/
+  * @brief   			串口中断函数   
+  * @note    			none  
+	* @param[in]   	none
+	* @param[out]   none
+  * @retval 
+  */
 void UART_IRQFUN(void)
 {
 #ifdef STM32F103x	

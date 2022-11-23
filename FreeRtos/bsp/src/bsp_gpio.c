@@ -35,8 +35,6 @@ void bsp_gpio_init(void)
 
 		GPIO_Initure.Pin	=LED1_PIN;
 		HAL_GPIO_Init(LED1_PORT,&GPIO_Initure);
-	
-		
 #endif
 
 }

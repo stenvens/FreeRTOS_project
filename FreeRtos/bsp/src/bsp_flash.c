@@ -1,6 +1,14 @@
 #include "config.h"
 #include "string.h"
 
+
+/**
+  * @brief   			加锁FLASH  
+  * @note    			none  
+	* @param[in]   	none
+	* @param[out]   none
+  * @retval 
+  */
 void bsp_flash_lock(void)
 {
 #ifdef STM32F103x
@@ -12,6 +20,14 @@ void bsp_flash_lock(void)
 
 }
 
+
+/**
+  * @brief   			解锁FLASH   
+  * @note    			none  
+	* @param[in]   	none
+	* @param[out]   none
+  * @retval 
+  */
 void bsp_flash_unlock(void)
 {
 #ifdef STM32F103x
@@ -22,6 +38,14 @@ void bsp_flash_unlock(void)
 
 }
 
+
+/**
+  * @brief   			擦除flash 
+  * @note    			none  
+	* @param[in]   	address:要擦除的地址 page_num:要擦除的页数
+	* @param[out]   none
+  * @retval 
+  */
 uint8_t  bsp_flash_erase(uint32_t  address,uint32_t page_num)
 {
 		uint8_t ret = 0;
@@ -49,6 +73,14 @@ uint8_t  bsp_flash_erase(uint32_t  address,uint32_t page_num)
 return ret;
 }
 
+
+/**
+  * @brief   			写数据到FLASH 
+  * @note    			none  
+	* @param[in]   	_ulFlashAddr:要写入的地址 _ucpSrc:要写入的数据 _ulSize:数据大小
+	* @param[out]   none
+  * @retval 
+  */
 uint8_t bsp_flash_write(uint32_t _ulFlashAddr, uint8_t *_ucpSrc, uint32_t _ulSize)
 {
 #ifdef STM32F103x
@@ -63,8 +95,6 @@ uint8_t bsp_flash_write(uint32_t _ulFlashAddr, uint8_t *_ucpSrc, uint32_t _ulSiz
 	{
 		return 0;
 	}
-
-
 	__set_PRIMASK(1);  		/* 关中断 */
 
 	/* FLASH 解锁 */
